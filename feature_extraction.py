@@ -1,6 +1,4 @@
 import nltk
-from positive_tweets import *
-from negative_tweets import *
 
 def word_filter(positive_tweets, negative_tweets):
     tweets = []
@@ -27,16 +25,14 @@ def get_word_features(wordlist):
     word_features = [i for (i,j) in sorted(wordlist.items(), key=lambda t: t[1], reverse=True)]
     return select_relevant_words(word_features)
 
-word_features = get_word_features(get_words_in_tweets(word_filter(positive_tweets,negative_tweets)))
-
-def NB_extract_features(document):
+def NB_extract_features(document, word_features):
     document_words = set(document)
     features = {}
     for word in word_features:
         features[word] = (word in document_words)
     return features
 
-def LR_extract_features(document):
+def LR_extract_features(document, word_features):
     document_words = set(document)
     features = []
     for word in word_features:

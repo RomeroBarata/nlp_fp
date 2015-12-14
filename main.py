@@ -13,6 +13,7 @@ filtered_negative_tweets = filter_tweets(negative_tweets)
 ## Split the data into training and testing ##
 
 ## Train a classifier ##
+word_features = get_word_features(get_words_in_tweets(word_filter(positive_tweets,negative_tweets)))
 
 ## Classify unseen tweets ##
 
