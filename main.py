@@ -1,15 +1,19 @@
 import nltk
 import pprint
+from positive_tweets_collection import positive_tweets
+from negative_tweets_collection import negative_tweets
+from tweets_pre_processing import *
 
 ## Constants ##
 
-## Collect the data ##
-
 ## Preprocess the tweets ##
+filtered_positive_tweets = filter_tweets(positive_tweets)
+filtered_negative_tweets = filter_tweets(negative_tweets)
 
 ## Split the data into training and testing ##
 
 ## Train a classifier ##
+word_features = get_word_features(get_words_in_tweets(word_filter(positive_tweets,negative_tweets)))
 
 ## Classify unseen tweets ##
 
