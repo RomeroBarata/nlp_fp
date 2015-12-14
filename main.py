@@ -5,6 +5,8 @@ import pprint
 
 ## Collect the data ##
 
+## Preprocess the tweets ##
+
 ## Split the data into training and testing ##
 
 ## Train a classifier ##
