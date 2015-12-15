@@ -1,20 +1,109 @@
 import nltk
 import pprint
-from positive_tweets_collection import positive_tweets
-from negative_tweets_collection import negative_tweets
+import random
+import numpy as np
+# from positive_tweets_collection import positive_tweets
+# from negative_tweets_collection import negative_tweets
 from tweets_pre_processing import *
+from feature_extraction import *
+from logistic_regression import *
 
 ## Constants ##
+TRAINING_EXAMPLES_RATIO = 0.75
+ALPHA = 0.1
+ITERATIONS = 3000
+THRESHOLD = 0.5
 
 ## Preprocess the tweets ##
 filtered_positive_tweets = filter_tweets(positive_tweets)
 filtered_negative_tweets = filter_tweets(negative_tweets)
 
 ## Split the data into training and testing ##
+print("splitting")
+number_training_positive_examples = int(TRAINING_EXAMPLES_RATIO * len(positive_tweets))
+number_training_negative_examples = int(TRAINING_EXAMPLES_RATIO * len(negative_tweets))
 
-## Train a classifier ##
-word_features = get_word_features(get_words_in_tweets(word_filter(positive_tweets,negative_tweets)))
+training_tweets = word_filter(positive_tweets[:number_training_positive_examples], negative_tweets[:number_training_negative_examples])
+random.shuffle(training_tweets)
+
+test_tweets = word_filter(positive_tweets[number_training_positive_examples:], negative_tweets[number_training_negative_examples:])
+random.shuffle(test_tweets)
+
+## Train the logistic regression classifier ##
+print("preparing logistic regression training")
+training_featureset = nltk.classify.apply_features(lr_extract_features, training_tweets)
+
+training_matrix = np.array( [x for (x,y) in training_featureset] )
+classes_vector = np.array( [[1] if y=='positive' else [0] for (x,y) in training_featureset] )
+
+n = training_matrix.shape[1] # number of features
+m = len(training_matrix) # number of training documents
+
+training_matrix = np.concatenate((np.ones((m,1)), training_matrix), axis = 1)
+
+lr_classifier = np.zeros((n+1,1))
+
+print("training...")
+print("initial cost function: %.2f"%cost_function(training_matrix, classes_vector, lr_classifier))
+
+lr_classifier = gradient_descent(training_matrix, classes_vector, lr_classifier, ALPHA, ITERATIONS)
+
+print("done")
+print("final cost function: %.2f"%cost_function(training_matrix, classes_vector, lr_classifier))
+
+## Train the naive bayes classifier ##
+print('preparing naive bayes training')
+training_featureset = nltk.classify.apply_features(nb_extract_features, training_tweets)
+
+print('training...')
+
+nb_classifier = nltk.NaiveBayesClassifier.train(training_featureset)
+
+print('done')
 
 ## Classify unseen tweets ##
+
+## logistic regression ##
+test_featureset = nltk.classify.apply_features(lr_extract_features, test_tweets)
+test_classes = [y for (x,y) in test_featureset]
+
+test_matrix = np.array( [x for (x,y) in test_featureset] )
+m = len(test_matrix) # number of test documents
+test_matrix = np.concatenate((np.ones((m,1)), test_matrix), axis = 1)
+
+lr_hypothesis = lr_classify(test_matrix, lr_classifier, THRESHOLD)
+
+lr_true_positives, lr_false_positives, lr_true_negatives, lr_false_negatives = 0,0,0,0
+for i in range(0,m):
+    if test_classes[i] == 'positive':
+        if lr_hypothesis[i] == 'positive':
+            lr_true_positives += 1
+        else:
+            lr_false_negatives += 1
+    else:
+        if lr_hypothesis[i] == 'negative':
+            lr_true_negatives += 1
+        else:
+            lr_false_positives += 1
+
+## naive bayes ##
+test_featureset = nltk.classify.apply_features(nb_extract_features, test_tweets)
+
+nb_true_positives, nb_false_positives, nb_true_negatives, nb_false_negatives = 0,0,0,0
+nb_hypothesis = []
+for tweet,c in test_featureset:
+    h = nb_classifier.classify(tweet)
+    nb_hypothesis.append(h)
+    if c == 'positive':
+        if h == 'positive':
+            nb_true_positives += 1 
+        else:
+            nb_false_negatives += 1
+    else:
+        if h == 'negative':
+            nb_true_negatives += 1 
+        else:
+            nb_false_positives += 1
+
 
 ## Assess the results ##
