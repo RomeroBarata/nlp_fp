@@ -3,7 +3,7 @@ from positive_tweets_collection import positive_tweets
 from negative_tweets_collection import negative_tweets
 
 # word_filter will discard words with len <= 2 and put them to lowercase
-# furthermore it will transform the phrses into arrays of words
+# furthermore it will transform the phrases into arrays of words
 def word_filter(positive_tweets, negative_tweets):
     tweets = []
     for (words, sentiment) in positive_tweets + negative_tweets:
