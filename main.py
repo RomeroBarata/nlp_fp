@@ -61,7 +61,49 @@ nb_classifier = nltk.NaiveBayesClassifier.train(training_featureset)
 
 print('done')
 
-
 ## Classify unseen tweets ##
+
+## logistic regression ##
+test_featureset = nltk.classify.apply_features(lr_extract_features, test_tweets)
+test_classes = [y for (x,y) in test_featureset]
+
+test_matrix = np.array( [x for (x,y) in test_featureset] )
+m = len(test_matrix) # number of test documents
+test_matrix = np.concatenate((np.ones((m,1)), test_matrix), axis = 1)
+
+lr_hypothesis = lr_classify(test_matrix, lr_classifier, THRESHOLD)
+
+lr_true_positives, lr_false_positives, lr_true_negatives, lr_false_negatives = 0,0,0,0
+for i in range(0,m):
+    if test_classes[i] == 'positive':
+        if lr_hypothesis[i] == 'positive':
+            lr_true_positives += 1
+        else:
+            lr_false_negatives += 1
+    else:
+        if lr_hypothesis[i] == 'negative':
+            lr_true_negatives += 1
+        else:
+            lr_false_positives += 1
+
+## naive bayes ##
+test_featureset = nltk.classify.apply_features(nb_extract_features, test_tweets)
+
+nb_true_positives, nb_false_positives, nb_true_negatives, nb_false_negatives = 0,0,0,0
+nb_hypothesis = []
+for tweet,c in test_featureset:
+    h = nb_classifier.classify(tweet)
+    nb_hypothesis.append(h)
+    if c == 'positive':
+        if h == 'positive':
+            nb_true_positives += 1 
+        else:
+            nb_false_negatives += 1
+    else:
+        if h == 'negative':
+            nb_true_negatives += 1 
+        else:
+            nb_false_positives += 1
+
 
 ## Assess the results ##

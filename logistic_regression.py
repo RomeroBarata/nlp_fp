@@ -71,6 +71,5 @@ def gradient_descent_reg(training, classes, theta, alpha, num_iterations, regLam
     return theta
 
 def lr_classify(testing, theta, threshold):
-    return 'positive' if vsigmoid(np.dot(testing,theta)) >= threshold else 'negative'
-
-
+    hypothesis = vsigmoid(np.dot(testing,theta))
+    return ['positive' if h >= threshold else 'negative' for h in hypothesis]
