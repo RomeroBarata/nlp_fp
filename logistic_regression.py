@@ -70,7 +70,7 @@ def gradient_descent_reg(training, classes, theta, alpha, num_iterations, regLam
 
     return theta
 
-def classify(testing, theta):
-    return vsigmoid(np.dot(testing,theta))
+def lr_classify(testing, theta, threshold):
+    return 'positive' if vsigmoid(np.dot(testing,theta)) >= threshold else 'negative'
 
 
