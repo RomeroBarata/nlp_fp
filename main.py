@@ -9,8 +9,9 @@ from assessment_metrics import *
 ## Constants ##
 TRAINING_EXAMPLES_RATIO = 0.75
 ALPHA = 0.1
-ITERATIONS = 3000
+ITERATIONS = 5000
 THRESHOLD = 0.5
+RLAMBDA = 1
 
 ## Split the data into training and testing ##
 print("Splitting")
